@@ -107,28 +107,26 @@ public class NodeGrid
     //DEBUG METHODS
     public void DrawDebugNodeMarkers()
     {
-            for (int i = 0; i < gridSize - 1; i++)
-            {
-                for (int j = 0; j < gridSize - 1; j++)
-                {
-                    Vector2 pos2 = grid[i][j].GetVector2();
-                    Vector2 pos2r = grid[i + 1][j].GetVector2();
-                    Vector2 pos2d = grid[i][j + 1].GetVector2();
+        Vector3 xStart = new Vector3(_xConstraint.x, _yConstraint.x, 0);
+        Vector3 xEnd = new Vector3(_xConstraint.y, _yConstraint.x, 0);
+        
+        Vector3 yStart = new Vector3(_xConstraint.x, _yConstraint.x, 0);
+        Vector3 yEnd = new Vector3(_xConstraint.x, _yConstraint.y, 0);
 
-                    Vector3 pos3 = new Vector3(pos2.x, pos2.y, 0);
-                    Vector3 pos3r = new Vector3(pos2r.x, pos2r.y, 0);
-                    Vector3 pos3d = new Vector3(pos2d.x, pos2d.y, 0);
-                    Debug.DrawLine(pos3, pos3r, Color.blue);
-                    Debug.DrawLine(pos3, pos3d, Color.blue);
-                }
+        float nodeSizeX = (_xConstraint.y - _xConstraint.x) / gridSize;
+        float nodeSizeY = (_yConstraint.y - _yConstraint.x) / gridSize;
 
-            Vector2 pos2A = grid[i][gridSize - 1].GetVector2();
-            Vector2 pos2Ar = grid[i + 1][gridSize - 1].GetVector2();
-            Debug.DrawLine(pos2A, pos2Ar, Color.blue);
+        Vector3 xInc = new Vector3(0, nodeSizeX, 0);
+        Vector3 yInc = new Vector3(nodeSizeY, 0, 0);
 
-            Vector2 pos2B = grid[gridSize - 1][i].GetVector2();
-            Vector2 pos2Bd = grid[gridSize - 1][i + 1].GetVector2();
-            Debug.DrawLine(pos2B, pos2Bd, Color.blue);
+        for (int i = 0; i <= gridSize; i++)
+        {
+            Debug.DrawLine(xStart, xEnd, Color.blue);
+            Debug.DrawLine(yStart, yEnd, Color.blue);
+            xStart += xInc;
+            xEnd += xInc;
+            yStart += yInc;
+            yEnd += yInc;
         }
     }
     public void DrawDebugBorders()

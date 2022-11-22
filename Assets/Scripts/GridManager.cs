@@ -44,6 +44,7 @@ public class GridManager : MonoBehaviour
         _nodeGrid.DrawDebugNodeMarkers();
         _nodeGrid.DrawDebugBorders();
         TESTNODEPATH = AStarPathfind.PathFind(_nodeGrid, TESTA, TESTB);
+        if (TESTNODEPATH == null) { return; }
         for (int i = 0; i < TESTNODEPATH.Length - 1; i++)
         {
             Vector2 vec2A = TESTNODEPATH[i].GetVector2();

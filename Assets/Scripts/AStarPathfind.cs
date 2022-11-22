@@ -19,69 +19,41 @@ public static class AStarPathfind
         Node startNode = nodeGrid.grid[startIndex.x][startIndex.y];
         Node endNode = nodeGrid.grid[endIndex.x][endIndex.y];
 
-        PriorityQueue<Node> qStart = new PriorityQueue<Node>();
-        qStart.Insert(startNode, 0f);
+        PriorityQueue<Node> q = new PriorityQueue<Node>();
+        q.Insert(startNode, 0f);
 
-        PriorityQueue<Node> qEnd = new PriorityQueue<Node>();
-        qEnd.Insert(endNode, 0f);
+        HashSet<Node> visitedNodes = new HashSet<Node>();
+        visitedNodes.Add(startNode);
 
-        HashSet<Node> visitedNodesStart = new HashSet<Node>();
-        visitedNodesStart.Add(startNode);
+        int TESTNODEAMOUNT = 0;
 
-        HashSet<Node> visitedNodesEnd = new HashSet<Node>();
-        visitedNodesEnd.Add(endNode);
-
-        bool fromStart; //This keeps track of in which direction we're iterating
-        while (!qStart.IsEmpty() && !qEnd.IsEmpty())
+        while (!q.IsEmpty())
         {
-            fromStart = qStart.HasBetterPriority(qEnd);
-            PriorityQueue<Node> currentQ = fromStart ? qStart : qEnd;
-            HashSet<Node> currentVisitedNodes = fromStart ? visitedNodesStart : visitedNodesEnd;
-            HashSet<Node> otherVisitedNodes = fromStart ? visitedNodesEnd : visitedNodesStart;
-
-            Node currentNode = currentQ.Pop();
+            Node currentNode = q.Pop();
+            TESTNODEAMOUNT++;
             Vector2Int[] currentNeighbours = NeighbouringIndexes(nodeGrid.gridSize, currentNode.indexes);
 
             for (int i = 0; i < currentNeighbours.Length; i++)
             {
                 Node nextNode = nodeGrid.grid[currentNeighbours[i].x][currentNeighbours[i].y];
 
-                if (currentVisitedNodes.Contains(nextNode)) { continue; } //Already visited
+                if (visitedNodes.Contains(nextNode)) { continue; }
 
-                if (otherVisitedNodes.Contains(nextNode))
+                if (nextNode.indexes == endIndex)
                 {
-                    Node[] currentPath = currentNode.GetParentPath();
-                    Node[] nextPath = nextNode.GetParentPath();
-                    Node[] returnPath = new Node[currentPath.Length + nextPath.Length];
-                    if (fromStart)
-                    {
-                        Array.Reverse(currentPath);
-                        currentPath.CopyTo(returnPath, 0);
-                        nextPath.CopyTo(returnPath, currentPath.Length);
-                    } else
-                    {
-                        Array.Reverse(nextPath);
-                        nextPath.CopyTo(returnPath, 0);
-                        currentPath.CopyTo(returnPath, nextPath.Length);
-                    }
-                    return returnPath;
+                    nextNode.SetParentNode(currentNode);
+                    Debug.Log(TESTNODEAMOUNT);
+                    return nextNode.GetParentPath();
                 }
 
-                if (!nextNode.isReachable) { continue; } //NOT SURE IF THIS IS RIGHT PLACE FOR REACHABLE CHECK
+                if (!nextNode.isReachable) { continue; } 
                 nextNode.SetParentNode(currentNode);
-                currentVisitedNodes.Add(nextNode);
-                if (fromStart)
-                {
-                    nextNode.prioStart = currentNode.prioStart + Vector2.Distance(currentNode.GetVector2(), nextNode.GetVector2());
-                } else
-                {
-                    nextNode.prioEnd = currentNode.prioEnd + Vector2.Distance(currentNode.GetVector2(), nextNode.GetVector2());
-                }
-                currentQ.Insert(nextNode, nextNode.prioTotal);
+                visitedNodes.Add(nextNode);
+                nextNode.prioStart = currentNode.prioStart + Vector2.Distance(currentNode.GetVector2(), nextNode.GetVector2());
+                q.Insert(nextNode, nextNode.prioTotal);
             }
 
         }
-        Debug.Log("No Path");
         return null;
     }
 
