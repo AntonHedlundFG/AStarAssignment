@@ -8,9 +8,9 @@ public class Node
     private Vector2 _position;
     public Vector2Int indexes { get; private set; }
     public bool isReachable { get; set; }
-    public float prioStart;
-    public float prioEnd;
-    public float prioTotal => prioStart + prioEnd;
+    public float PrioF;
+    public float PrioG;
+    public float PrioTotal => (PrioF + PrioG);
     public Node(Vector2 position, Vector2Int indexes)
     {
         _parentNode = null;

@@ -17,20 +17,19 @@ public static class AStarPathfind
 
         //Set up queues and sets
         Node startNode = nodeGrid.grid[startIndex.x][startIndex.y];
+        startNode.PrioF = 0;
         Node endNode = nodeGrid.grid[endIndex.x][endIndex.y];
+        if (!startNode.isReachable || !endNode.isReachable) { return null; }
 
         PriorityQueue<Node> q = new PriorityQueue<Node>();
         q.Insert(startNode, 0f);
 
         HashSet<Node> visitedNodes = new HashSet<Node>();
-        visitedNodes.Add(startNode);
 
-        int TESTNODEAMOUNT = 0;
 
         while (!q.IsEmpty())
         {
             Node currentNode = q.Pop();
-            TESTNODEAMOUNT++;
             Vector2Int[] currentNeighbours = NeighbouringIndexes(nodeGrid.gridSize, currentNode.indexes);
 
             for (int i = 0; i < currentNeighbours.Length; i++)
@@ -42,16 +41,23 @@ public static class AStarPathfind
                 if (nextNode.indexes == endIndex)
                 {
                     nextNode.SetParentNode(currentNode);
-                    Debug.Log(TESTNODEAMOUNT);
-                    return nextNode.GetParentPath();
+                    Node[] returnPath = nextNode.GetParentPath();
+                    Array.Reverse(returnPath);
+                    return returnPath;
                 }
 
                 if (!nextNode.isReachable) { continue; } 
-                nextNode.SetParentNode(currentNode);
-                visitedNodes.Add(nextNode);
-                nextNode.prioStart = currentNode.prioStart + Vector2.Distance(currentNode.GetVector2(), nextNode.GetVector2());
-                q.Insert(nextNode, nextNode.prioTotal);
+
+                float tempF = currentNode.PrioF + Vector2.Distance(currentNode.GetVector2(), nextNode.GetVector2());
+                if (nextNode.PrioF > tempF)
+                {
+                    q.Remove(nextNode);
+                    nextNode.PrioF = tempF;
+                    nextNode.SetParentNode(currentNode);
+                    q.Insert(nextNode, nextNode.PrioTotal);
+                }
             }
+            visitedNodes.Add(currentNode);
 
         }
         return null;

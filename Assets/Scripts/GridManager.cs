@@ -6,7 +6,6 @@ public class GridManager : MonoBehaviour
 {
     [SerializeField] private GameObject _topLeftCornerObject;
     [SerializeField] private GameObject _botRightCornerObject;
-    [SerializeField] private GameObject _TESTOBJECT;
 
     private Vector2 _xConstraint;
     private Vector2 _yConstraint;
@@ -37,7 +36,7 @@ public class GridManager : MonoBehaviour
 
     private void Update()
     {
-        DebugMethods();
+        //DebugMethods();
     }
     private void DebugMethods()
     {
@@ -54,4 +53,6 @@ public class GridManager : MonoBehaviour
             Debug.DrawLine(vec3A, vec3B, Color.green);
         }
     }
+
+    public NodeGrid GetNodeGrid() => _nodeGrid;
 }

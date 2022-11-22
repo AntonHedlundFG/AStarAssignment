@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PriorityQueue<TElement>
+public class PriorityQueue<TElement> where TElement : class
 {
     private struct QueueObject
     {
@@ -30,6 +30,19 @@ public class PriorityQueue<TElement>
         int i = 0;
         while(i < _pq.Count && _pq[i].priority < prio) { i++; }
         _pq.Insert(i, new QueueObject(obj, prio));
+    }
+
+    public bool Remove(TElement obj)
+    {
+        for (int i = 0; i < _pq.Count; i++)
+        {
+            if (_pq[i].element == obj)
+            {
+                _pq.RemoveAt(i);
+                return true;
+            }
+        }
+        return false;
     }
 
     public bool HasBetterPriority(PriorityQueue<TElement> otherQ)

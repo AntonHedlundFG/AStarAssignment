@@ -24,8 +24,8 @@ public class NodeGrid
         {
             for (int j = 0; j < gridSize; j++)
             {
-                grid[i][j].prioStart = Vector2.Distance(grid[i][j].GetVector2(), grid[startIndex.x][startIndex.y].GetVector2());
-                grid[i][j].prioEnd = Vector2.Distance(grid[i][j].GetVector2(), grid[endIndex.x][endIndex.y].GetVector2());
+                grid[i][j].PrioF = float.MaxValue;
+                grid[i][j].PrioG = Vector2.Distance(grid[i][j].GetVector2(), grid[endIndex.x][endIndex.y].GetVector2());
             }
         }
     }
@@ -74,6 +74,11 @@ public class NodeGrid
         float yPos = (position.y - _yConstraint.x) / nodeHeight;
         return new Vector2Int((int)xPos, (int)yPos);
     }
+    public Vector2 GetAlignedVector2(Vector2 inVector)
+    {
+        Vector2Int coords = GetGridPosFromVector2(inVector);
+        return GetVector2FromGridPos(coords.x, coords.y);
+    }
     public void ResetGrid()
     {
         for (int i = 0; i < gridSize; i++)
@@ -81,12 +86,15 @@ public class NodeGrid
             for (int j = 0; j < gridSize; j++)
             {
                 grid[i][j].SetParentNode(null);
+                grid[i][j].PrioF = float.MaxValue;
+                grid[i][j].PrioG = 0;
             }
         }
     }
     private void CheckCollisionForNode(Node node)
     {
-        if(Physics.BoxCast(new Vector3(node.GetVector2().x, node.GetVector2().y, -100), GetNodeExtents() / 2, Vector3.forward))
+        LayerMask layerMask = ~LayerMask.GetMask("Ground");
+        if(Physics.BoxCast(new Vector3(node.GetVector2().x, node.GetVector2().y, -100), GetNodeExtents() / 2, Vector3.forward, Quaternion.identity, float.MaxValue, layerMask))
         {
             node.isReachable = false;
         }
@@ -113,8 +121,8 @@ public class NodeGrid
         Vector3 yStart = new Vector3(_xConstraint.x, _yConstraint.x, 0);
         Vector3 yEnd = new Vector3(_xConstraint.x, _yConstraint.y, 0);
 
-        float nodeSizeX = (_xConstraint.y - _xConstraint.x) / gridSize;
-        float nodeSizeY = (_yConstraint.y - _yConstraint.x) / gridSize;
+        float nodeSizeY = (_xConstraint.y - _xConstraint.x) / gridSize;
+        float nodeSizeX = (_yConstraint.y - _yConstraint.x) / gridSize;
 
         Vector3 xInc = new Vector3(0, nodeSizeX, 0);
         Vector3 yInc = new Vector3(nodeSizeY, 0, 0);
