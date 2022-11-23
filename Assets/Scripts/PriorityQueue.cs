@@ -29,7 +29,8 @@ public class PriorityQueue<TElement> where TElement : class
     {
         int i = 0;
         while(i < _pq.Count && _pq[i].priority < prio) { i++; }
-        _pq.Insert(i, new QueueObject(obj, prio));
+        BinaryInsert(new QueueObject(obj, prio));
+        //_pq.Insert(i, new QueueObject(obj, prio));
     }
 
     public bool Remove(TElement obj)
@@ -49,4 +50,33 @@ public class PriorityQueue<TElement> where TElement : class
     {
         return BestPriority() <= otherQ.BestPriority();
     }
+    private void BinaryInsert(QueueObject insertObject)
+    {
+        int minIndex = 0;
+        int maxIndex = _pq.Count - 1;
+        int midIndex = 0;
+        float newPrio = insertObject.priority;
+
+        while (minIndex <= maxIndex)
+        {
+            midIndex = (minIndex + maxIndex) / 2;
+            if (_pq[midIndex].priority == newPrio)
+            {
+                _pq.Insert(midIndex, insertObject);
+                return;
+            }
+            if (_pq[midIndex].priority < newPrio)
+            {
+                minIndex = midIndex + 1;
+            }
+            else
+            {
+                maxIndex = midIndex - 1;
+            }
+        }
+
+        _pq.Insert(minIndex, insertObject);
+        return;
+    }
+
 }

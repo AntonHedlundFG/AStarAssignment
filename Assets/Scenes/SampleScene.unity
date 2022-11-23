@@ -992,7 +992,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _topLeftCornerObject: {fileID: 1827670761}
   _botRightCornerObject: {fileID: 356618164}
-  NODESIZE: 100
+  NODESIZE: 50
   TESTA: {x: 0, y: 0}
   TESTB: {x: 49, y: 49}
 --- !u!4 &935597858

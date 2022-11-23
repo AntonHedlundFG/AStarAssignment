@@ -8,8 +8,8 @@ public class UnitPathfindClicker : MonoBehaviour
     [SerializeField] private GameObject _unit;
     private NodeGrid _nodeGrid;
 
-    private float _delayPerNode = 0.005f;
-    private int _lerpIntervals = 20;
+    private float _delayPerNode;
+    private int _lerpIntervals = 10;
     private bool _isMoving;
     private Coroutine _moveRoutine;
     
@@ -18,6 +18,7 @@ public class UnitPathfindClicker : MonoBehaviour
     {
         _nodeGrid = _gridManager?.GetNodeGrid();
         if(_nodeGrid == null) { gameObject.SetActive(false); }
+        _delayPerNode = 1f / (float) _nodeGrid.gridSize;
     }
     private void Update()
     {
@@ -67,9 +68,9 @@ public class UnitPathfindClicker : MonoBehaviour
             Vector2 nextPos = path[i].GetVector2();
             for (int j = 0; j < _lerpIntervals; j++)
             {
-                Vector2 newPos = Vector2.Lerp(curPos, nextPos, (float) j / _lerpIntervals);
+                Vector2 newPos = Vector2.Lerp(curPos, nextPos, (float) j / (float) _lerpIntervals);
                 UpdateObjectPosition(_unit, newPos);
-                yield return new WaitForSeconds(_delayPerNode / _lerpIntervals);
+                yield return new WaitForSeconds(_delayPerNode / (float)_lerpIntervals);
             }
         }
         _isMoving = false;

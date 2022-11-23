@@ -26,7 +26,6 @@ public static class AStarPathfind
 
         HashSet<Node> visitedNodes = new HashSet<Node>();
 
-
         while (!q.IsEmpty())
         {
             Node currentNode = q.Pop();
@@ -85,4 +84,6 @@ public static class AStarPathfind
 
         return list.ToArray();
     }
+
+
 }

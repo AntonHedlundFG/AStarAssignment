@@ -10,7 +10,7 @@ public class GridManager : MonoBehaviour
     private Vector2 _xConstraint;
     private Vector2 _yConstraint;
 
-    [SerializeField] private int NODESIZE = 500;
+    [SerializeField] private int NODESIZE;
     private NodeGrid _nodeGrid;
 
     [SerializeField] Vector2Int TESTA;
