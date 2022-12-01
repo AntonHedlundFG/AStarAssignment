@@ -1,22 +1,20 @@
-using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 
 public class PriorityQueue<TElement> where TElement : class
 {
     private struct QueueObject
     {
-        public TElement element { get; private set; }
-        public float priority { get; private set; }
+        public TElement Element { get; private set; }
+        public float Priority { get; private set; }
         public QueueObject(TElement element, float priority)
         {
-            this.element = element;
-            this.priority = priority;
+            this.Element = element;
+            this.Priority = priority;
         }
     }
     private List<QueueObject> _pq = new List<QueueObject>();
     public bool IsEmpty() => (_pq.Count == 0);
-    public TElement Top() => IsEmpty() ? default(TElement) : _pq[0].element;
+    public TElement Top() => IsEmpty() ? default(TElement) : _pq[0].Element;
     public TElement Pop()
     {
         if (IsEmpty()) { return default(TElement); }
@@ -24,20 +22,18 @@ public class PriorityQueue<TElement> where TElement : class
         _pq.RemoveAt(0);
         return obj;
     }
-    public float BestPriority() => IsEmpty() ? float.MaxValue : _pq[0].priority;
-    public void Insert(TElement obj, float prio) // Currently O(n) insert, could be made a binary insert to get O(log n)
+    public void Insert(TElement obj, float prio)
     {
         int i = 0;
-        while(i < _pq.Count && _pq[i].priority < prio) { i++; }
+        while(i < _pq.Count && _pq[i].Priority < prio) { i++; }
         BinaryInsert(new QueueObject(obj, prio));
-        //_pq.Insert(i, new QueueObject(obj, prio));
     }
 
     public bool Remove(TElement obj)
     {
         for (int i = 0; i < _pq.Count; i++)
         {
-            if (_pq[i].element == obj)
+            if (_pq[i].Element == obj)
             {
                 _pq.RemoveAt(i);
                 return true;
@@ -45,27 +41,22 @@ public class PriorityQueue<TElement> where TElement : class
         }
         return false;
     }
-
-    public bool HasBetterPriority(PriorityQueue<TElement> otherQ)
-    {
-        return BestPriority() <= otherQ.BestPriority();
-    }
     private void BinaryInsert(QueueObject insertObject)
     {
         int minIndex = 0;
         int maxIndex = _pq.Count - 1;
         int midIndex = 0;
-        float newPrio = insertObject.priority;
+        float newPrio = insertObject.Priority;
 
         while (minIndex <= maxIndex)
         {
             midIndex = (minIndex + maxIndex) / 2;
-            if (_pq[midIndex].priority == newPrio)
+            if (_pq[midIndex].Priority == newPrio)
             {
                 _pq.Insert(midIndex, insertObject);
                 return;
             }
-            if (_pq[midIndex].priority < newPrio)
+            if (_pq[midIndex].Priority < newPrio)
             {
                 minIndex = midIndex + 1;
             }

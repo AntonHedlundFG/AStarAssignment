@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -8,18 +7,21 @@ public static class AStarPathfind
     public static Node[] PathFind(NodeGrid nodeGrid, Vector2Int startIndex, Vector2Int endIndex)
     {
         nodeGrid.ResetGrid();
-        nodeGrid.SetPriorities(startIndex, endIndex);
-        if (!IndexWithinGrid(nodeGrid.gridSize, startIndex) || !IndexWithinGrid(nodeGrid.gridSize, endIndex)) 
+        nodeGrid.SetupPriorities(startIndex, endIndex);
+
+        if (!IndexWithinGrid(nodeGrid.GridSize, startIndex) || !IndexWithinGrid(nodeGrid.GridSize, endIndex)) 
         { 
             return new Node[0]; 
         } //Confirm index is OK, otherwise return empty array
-        if (startIndex == endIndex) { return new Node[] { nodeGrid.grid[startIndex.x][startIndex.y] }; } //If start node = end node, return only that node.
 
-        //Set up queues and sets
-        Node startNode = nodeGrid.grid[startIndex.x][startIndex.y];
+        if (startIndex == endIndex) { return new Node[] { nodeGrid.Grid[startIndex.x][startIndex.y] }; } //If start node = end node, return only that node.
+
+
+        //Set up data structures
+        Node startNode = nodeGrid.Grid[startIndex.x][startIndex.y];
         startNode.PrioF = 0;
-        Node endNode = nodeGrid.grid[endIndex.x][endIndex.y];
-        if (!startNode.isReachable || !endNode.isReachable) { return null; }
+        Node endNode = nodeGrid.Grid[endIndex.x][endIndex.y];
+        if (!startNode.IsReachable || !endNode.IsReachable) { return null; }
 
         PriorityQueue<Node> q = new PriorityQueue<Node>();
         q.Insert(startNode, 0f);
@@ -29,15 +31,15 @@ public static class AStarPathfind
         while (!q.IsEmpty())
         {
             Node currentNode = q.Pop();
-            Vector2Int[] currentNeighbours = NeighbouringIndexes(nodeGrid.gridSize, currentNode.indexes);
+            Vector2Int[] currentNeighbours = NeighbouringIndexes(nodeGrid.GridSize, currentNode.Indexes);
 
             for (int i = 0; i < currentNeighbours.Length; i++)
             {
-                Node nextNode = nodeGrid.grid[currentNeighbours[i].x][currentNeighbours[i].y];
+                Node nextNode = nodeGrid.Grid[currentNeighbours[i].x][currentNeighbours[i].y];
 
                 if (visitedNodes.Contains(nextNode)) { continue; }
 
-                if (nextNode.indexes == endIndex)
+                if (nextNode.Indexes == endIndex) //End condition
                 {
                     nextNode.SetParentNode(currentNode);
                     Node[] returnPath = nextNode.GetParentPath();
@@ -45,10 +47,10 @@ public static class AStarPathfind
                     return returnPath;
                 }
 
-                if (!nextNode.isReachable) { continue; } 
+                if (!nextNode.IsReachable) { continue; } //Collision check
 
                 float tempF = currentNode.PrioF + Vector2.Distance(currentNode.GetVector2(), nextNode.GetVector2());
-                if (nextNode.PrioF > tempF)
+                if (nextNode.PrioF > tempF) //Only overwrite a node if the current path is better than its existing parent path
                 {
                     q.Remove(nextNode);
                     nextNode.PrioF = tempF;

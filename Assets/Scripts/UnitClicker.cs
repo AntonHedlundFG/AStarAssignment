@@ -1,12 +1,14 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class UnitPathfindClicker : MonoBehaviour
+public class UnitClicker : MonoBehaviour
 {
     [SerializeField] private GridManager _gridManager;
     [SerializeField] private GameObject _unit;
     private NodeGrid _nodeGrid;
+
+    [SerializeField] private PathMarkerManager _pathMarker;
+    [SerializeField] private GameObject _clickMarkerPrefab;
 
     private float _delayPerNode;
     private int _lerpIntervals = 10;
@@ -18,37 +20,56 @@ public class UnitPathfindClicker : MonoBehaviour
     {
         _nodeGrid = _gridManager?.GetNodeGrid();
         if(_nodeGrid == null) { gameObject.SetActive(false); }
-        _delayPerNode = 1f / (float) _nodeGrid.gridSize;
+        _delayPerNode = 1f / (float) _nodeGrid.GridSize;
     }
     private void Update()
     {
-        if(Input.GetKeyDown(KeyCode.Mouse0)) //Leftclick
+        if (Input.GetKeyDown(KeyCode.Mouse0)) //Leftclick
         {
-            CancelMove();
+            Teleport();
+        }
+        if (Input.GetKeyDown(KeyCode.Mouse1)) //Rightclick
+        {
+            Move();          
+        }
+    }
 
-            Vector2 clickPos;
-            if (GetClickPos(out clickPos))
+    private void Teleport()
+    {
+        CancelMove();
+
+        Vector2 clickPos;
+        if (GetClickPos(out clickPos))
+        {
+            SpawnClickMarker(0, clickPos);
+            Vector2Int coords = _nodeGrid.GetGridPosFromVector2(clickPos);
+
+            if (_nodeGrid.Grid[coords.x][coords.y].IsReachable)
             {
                 clickPos = _nodeGrid.GetAlignedVector2(clickPos);
                 _unit.transform.position = new Vector3(clickPos.x, clickPos.y, _unit.transform.position.z);
             }
+
+            _pathMarker?.ClearMarkers();
         }
-        if (Input.GetKeyDown(KeyCode.Mouse1)) //Rightclick
+    }
+    private void Move()
+    {
+        CancelMove();
+
+        Vector2 clickPos;
+        if (GetClickPos(out clickPos))
         {
-            CancelMove();
-
-            Vector2 clickPos;
-            if (GetClickPos(out clickPos))
+            SpawnClickMarker(1, clickPos);
+            Vector2Int targetIndexes = _nodeGrid.GetGridPosFromVector2(clickPos);
+            Node[] path = AStarPathfind.PathFind(_nodeGrid, _nodeGrid.GetGridPosFromVector2(_unit.transform.position), targetIndexes);
+            if (path != null)
             {
-                Vector2Int targetIndexes = _nodeGrid.GetGridPosFromVector2(clickPos);
-                Node[] path = AStarPathfind.PathFind(_nodeGrid, _nodeGrid.GetGridPosFromVector2(_unit.transform.position), targetIndexes);
-                if (path != null) { _moveRoutine = StartCoroutine(MoveAlongPath(path)); }
-                
+                _pathMarker?.GenerateMarkers(path);
+                _moveRoutine = StartCoroutine(MoveAlongPath(path));
             }
-            
+
         }
-
-
     }
     private void CancelMove()
     {
@@ -56,7 +77,14 @@ public class UnitPathfindClicker : MonoBehaviour
         {
             StopCoroutine(_moveRoutine);
             _isMoving = false;
+            _pathMarker?.ClearMarkers();
         }
+    }
+
+    private void SpawnClickMarker(int clickType, Vector2 position)
+    {
+        GameObject marker = Instantiate(_clickMarkerPrefab);
+        marker.GetComponent<ClickMarker>().Setup(clickType, position);
     }
 
     private IEnumerator MoveAlongPath(Node[] path)
@@ -68,12 +96,15 @@ public class UnitPathfindClicker : MonoBehaviour
             Vector2 nextPos = path[i].GetVector2();
             for (int j = 0; j < _lerpIntervals; j++)
             {
+                if (j == _lerpIntervals / 2) { _pathMarker?.DeleteNextMarker(); } //Delete the next path marker halfway there, it looks better.
+
                 Vector2 newPos = Vector2.Lerp(curPos, nextPos, (float) j / (float) _lerpIntervals);
                 UpdateObjectPosition(_unit, newPos);
                 yield return new WaitForSeconds(_delayPerNode / (float)_lerpIntervals);
             }
         }
         _isMoving = false;
+        _pathMarker?.ClearMarkers();
     }
 
     private void UpdateObjectPosition(GameObject obj, Vector2 XYPos)
@@ -94,7 +125,7 @@ public class UnitPathfindClicker : MonoBehaviour
             return true;
         }
 
-        pos = Vector2.positiveInfinity;
+        pos = Vector2.zero;
         return false;
     }
 }
